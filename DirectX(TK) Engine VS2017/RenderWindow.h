@@ -13,6 +13,7 @@ public:
         const std::string& window_class, const unsigned int width, const unsigned int height);
 
     bool ProcessMessages();
+    HWND GetHWND() const;
     ~RenderWindow();
 protected:
 private:

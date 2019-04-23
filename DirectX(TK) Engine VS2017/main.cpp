@@ -1,7 +1,4 @@
 #include<Windows.h>
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "DirectXTK.lib")
-
 #include "Engine.h"
 
 int APIENTRY wWinMain(
