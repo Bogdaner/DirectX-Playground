@@ -31,6 +31,9 @@
     <Filter Include="Source Files\Graphics">
       <UniqueIdentifier>{df7f3f99-532d-47ad-8793-eca39c20faf8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Shaders">
+      <UniqueIdentifier>{acf57ee2-2b03-4d7b-ad3d-229562f2521d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -107,5 +110,13 @@
     <ClInclude Include="Graphics\Vertex.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Shaders\VertexShader.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\vertexshader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

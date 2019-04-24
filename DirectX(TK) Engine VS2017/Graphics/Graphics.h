@@ -1,6 +1,8 @@
 #pragma once
 
 #include "AdapterReader.h"
+#include "..//Shaders/VertexShader.h"
+
 #include <algorithm>
 
 class Graphics
