@@ -7,6 +7,11 @@ bool Graphics::Initialize( HWND hwnd, const unsigned int width, const unsigned i
         return false;
     }
 
+    if ( !InitializeShaders() )
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -27,6 +32,7 @@ bool Graphics::InitializeDirectX( HWND hwnd, const unsigned int width, const uns
         return false;
     }
 
+    // Get graphic adapter with the most memory (stored in max_itr)
     auto max_itr = std::max_element( adapters.begin(), adapters.end(), []( const AdapterData& a, const AdapterData& b ) -> bool
     {
         return a.description.DedicatedVideoMemory < b.description.DedicatedVideoMemory;
@@ -89,6 +95,31 @@ bool Graphics::InitializeDirectX( HWND hwnd, const unsigned int width, const uns
     }
 
     deviceContext->OMSetRenderTargets( 1, renderTargetView.GetAddressOf(), NULL );
+
+    return true;
+}
+
+bool Graphics::InitializeShaders()
+{
+    D3D11_INPUT_ELEMENT_DESC layout[]
+    {
+        {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+    };
+
+    const UINT numElements = ARRAYSIZE( layout );
+
+    HRESULT hr = device->CreateInputLayout(
+        layout,
+        numElements,
+        vertex_shader_buffer->GetBufferPointer(),
+        vertex_shader_buffer->GetBufferSize(),
+        inputLayout.GetAddressOf() );
+
+    if ( FAILED( hr ) )
+    {
+        ErrorLogger::Log( "Failed to create Input Layout" );
+        return false;
+    }
 
     return true;
 }
