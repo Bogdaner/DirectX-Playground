@@ -53,3 +53,8 @@ void Engine::Update()
         }
     }
 }
+
+void Engine::RenderFrame()
+{
+    gfx.RenderFrame();
+}

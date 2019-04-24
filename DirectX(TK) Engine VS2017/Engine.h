@@ -8,6 +8,7 @@ public:
     bool Initialize(HINSTANCE hInstance, const std::string& window_title, const std::string& window_class, unsigned const int width, unsigned const int height);
     bool ProcessMessages();
     void Update();
+    void RenderFrame();
 protected:
 private:
 };

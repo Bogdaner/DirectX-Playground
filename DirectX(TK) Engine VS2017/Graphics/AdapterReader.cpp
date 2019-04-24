@@ -4,8 +4,10 @@ std::vector<AdapterData> AdapterReader::adapters;
 
 std::vector<AdapterData> AdapterReader::GetAdapters()
 {
-    if (adapters.size() > 0) // if already initialized
+    if (!adapters.empty()) // if already initialized
+    {
         return adapters;
+    }
 
     Microsoft::WRL::ComPtr<IDXGIFactory> pFactory;
 
@@ -21,7 +23,7 @@ std::vector<AdapterData> AdapterReader::GetAdapters()
     IDXGIAdapter* pAdapter;
     while (SUCCEEDED(pFactory->EnumAdapters( i, &pAdapter )))
     {
-        adapters.push_back( pAdapter );
+        adapters.emplace_back( pAdapter );
         ++i;
     }
 

@@ -11,7 +11,7 @@
 
 struct AdapterData
 {
-    AdapterData( IDXGIAdapter* pAdapter );
+    explicit AdapterData( IDXGIAdapter* pAdapter );
     IDXGIAdapter* pAdapter = nullptr;
     DXGI_ADAPTER_DESC description;
 };

@@ -38,7 +38,7 @@ bool RenderWindow::ProcessMessages()
     MSG msg = {};
     //ZeroMemory(&msg, sizeof(MSG));
 
-    if (PeekMessage(&msg, handle, 0, 0, PM_REMOVE))
+    while (PeekMessage(&msg, handle, 0, 0, PM_REMOVE))
     {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
@@ -76,7 +76,8 @@ RenderWindow::~RenderWindow()
 
 HWND RenderWindow::Create(WindowContainer* pWindowContainer)
 {
-    return CreateWindowEx(0,                      //Extended Windows style - we are using the default. For other options, see: https://msdn.microsoft.com/en-us/library/windows/desktop/ff700543(v=vs.85).aspx
+    return CreateWindowEx(
+        0,                                        //Extended Windows style - we are using the default. For other options, see: https://msdn.microsoft.com/en-us/library/windows/desktop/ff700543(v=vs.85).aspx
         this->window_class_wide.c_str(),          //Window class name
         this->window_title_wide.c_str(),          //Window Title
         WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, //Windows style - See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632600(v=vs.85).aspx
@@ -87,7 +88,7 @@ HWND RenderWindow::Create(WindowContainer* pWindowContainer)
         NULL,                                     //Handle to parent of this window. Since this is the first window, it has no parent window.
         NULL,                                     //Handle to menu or child window identifier. Can be set to NULL and use menu in WindowClassEx if a menu is desired to be used.
         this->hInstance,                          //Handle to the instance of module to be used with this window
-        pWindowContainer);                        //Param to create window
+        pWindowContainer );                       //Param to create window
 }
 
 LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
