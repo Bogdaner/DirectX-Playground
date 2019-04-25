@@ -96,6 +96,18 @@ bool Graphics::InitializeDirectX( HWND hwnd, const unsigned int width, const uns
 
     deviceContext->OMSetRenderTargets( 1, renderTargetView.GetAddressOf(), NULL );
 
+    // RASTERIZER SETUP
+    D3D11_VIEWPORT viewport;
+    ZeroMemory( &viewport, sizeof( D3D11_VIEWPORT ) );
+
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    viewport.Width = static_cast<float>(width);
+    viewport.Height = static_cast<float>(height);
+
+    // Set the viewport
+    deviceContext->RSSetViewports( 1, &viewport );
+
     return true;
 }
 
@@ -105,19 +117,15 @@ bool Graphics::InitializeShaders()
     {
         {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
     };
-
     const UINT numElements = ARRAYSIZE( layout );
 
-    HRESULT hr = device->CreateInputLayout(
-        layout,
-        numElements,
-        vertex_shader_buffer->GetBufferPointer(),
-        vertex_shader_buffer->GetBufferSize(),
-        inputLayout.GetAddressOf() );
-
-    if ( FAILED( hr ) )
+    if ( !vertexShader.Initialize( device, layout, numElements ) )
     {
-        ErrorLogger::Log( "Failed to create Input Layout" );
+        return false;
+    }
+
+    if ( !pixelShader.Initialize( device ) )
+    {
         return false;
     }
 

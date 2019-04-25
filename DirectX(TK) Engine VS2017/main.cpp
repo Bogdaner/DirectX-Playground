@@ -9,12 +9,13 @@ int APIENTRY wWinMain(
 )
 {
     Engine engine;
-    engine.Initialize(hInstance, "Window", "Class", 800u, 600u);
-
-    while (engine.ProcessMessages() == true)
+    if ( engine.Initialize( hInstance, "Window", "Class", 800u, 600u ) )
     {
-        engine.Update();
-        engine.RenderFrame();
+        while ( engine.ProcessMessages() == true )
+        {
+            engine.Update();
+            engine.RenderFrame();
+        }
     }
     return 0;
 }

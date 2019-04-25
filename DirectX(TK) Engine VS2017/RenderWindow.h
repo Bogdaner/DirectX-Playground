@@ -1,7 +1,8 @@
 #pragma once
-#include "ErrorLogger.h"
 
 #include <Windows.h>
+
+#include "ErrorLogger.h"
 
 class WindowContainer; // forward definition
 
