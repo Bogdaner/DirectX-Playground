@@ -12,13 +12,30 @@ bool Graphics::Initialize( HWND hwnd, const unsigned int width, const unsigned i
         return false;
     }
 
+    if ( !InitializeScene() )
+    {
+        return false;
+    }
+
     return true;
 }
 
 void Graphics::RenderFrame()
 {
-    const float bgcolor[] = { 0.0f, 0.0f, 1.0f, 1.0f };
+    const float bgcolor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
     deviceContext->ClearRenderTargetView( renderTargetView.Get(), bgcolor );
+
+    deviceContext->IASetInputLayout( vertexShader.GetInputLayout() );
+    deviceContext->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+    UINT stride = sizeof( Vertex );
+    UINT offset = 0;
+    deviceContext->IASetVertexBuffers( 0, 1, vertexBuffer.GetAddressOf(), &stride, &offset );
+
+    deviceContext->VSSetShader( vertexShader.GetShader(), NULL, 0 );
+    deviceContext->PSSetShader( pixelShader.GetShader(), NULL, 0 );
+
+    deviceContext->Draw( 3, 0 );
     swapchain->Present( 1, NULL ); // first argument vsync on/off
 }
 
@@ -129,5 +146,34 @@ bool Graphics::InitializeShaders()
         return false;
     }
 
+    return true;
+}
+
+bool Graphics::InitializeScene()
+{
+    Vertex v[] =
+    {
+        { -0.1f, 0.0f },
+        { 0.0f, 0.9f },
+        { 0.1f, 0.0f },
+    };
+
+    D3D11_BUFFER_DESC vertexBufferDesc;
+    ZeroMemory( &vertexBufferDesc, sizeof( D3D11_BUFFER_DESC ) );
+    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    vertexBufferDesc.ByteWidth = sizeof( Vertex ) * ARRAYSIZE( v );
+    vertexBufferDesc.CPUAccessFlags = 0;
+    vertexBufferDesc.MiscFlags = 0;
+
+    D3D11_SUBRESOURCE_DATA vertexBufferInitData;
+    ZeroMemory( &vertexBufferInitData, sizeof( D3D11_SUBRESOURCE_DATA ) );
+    vertexBufferInitData.pSysMem = v;
+
+    HRESULT hr = device->CreateBuffer( &vertexBufferDesc, &vertexBufferInitData, vertexBuffer.GetAddressOf() );
+    if ( FAILED( hr ) )
+    {
+        ErrorLogger::Log( hr, "Failed to create VertexBuffer." );
+        return false;
+    }
     return true;
 }
