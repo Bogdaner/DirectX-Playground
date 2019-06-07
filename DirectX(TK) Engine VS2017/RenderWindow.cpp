@@ -1,18 +1,18 @@
 #include "WindowContainer.h"
 
-RenderWindow::RenderWindow() : handle{ NULL }, hInstance{ NULL }, window_title{ "" }, window_title_wide{ L"" }, window_class{ "" }, window_class_wide{ L"" },
+RenderWindow::RenderWindow() : handle{ NULL }, hInstance{ NULL }, windowTitle{ "" }, windowTitleWide{ L"" }, windowClass{ "" }, windowClassWide{ L"" },
                                width{ 0u }, height{ 0u }
 {
 
 }
 
-bool RenderWindow::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInstance, const std::string& window_title, const std::string& window_class, unsigned const int width, unsigned const int height)
+bool RenderWindow::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInstance, const std::string& windowTitle, const std::string& windowClass, unsigned const int width, unsigned const int height)
 {
     this->hInstance = hInstance;
-    this->window_title = window_title;
-    this->window_title_wide = StringConverter::StringToWide(window_title);
-    this->window_class = window_class;
-    this->window_class_wide = StringConverter::StringToWide(window_class);
+    this->windowTitle = windowTitle;
+    this->windowTitleWide = StringConverter::StringToWide(windowTitle);
+    this->windowClass = windowClass;
+    this->windowClassWide = StringConverter::StringToWide(windowClass);
     this->width = width;
     this->height = height;
 
@@ -21,7 +21,7 @@ bool RenderWindow::Initialize(WindowContainer* pWindowContainer, HINSTANCE hInst
     handle = Create(pWindowContainer);
     if (handle == NULL)
     {
-        ErrorLogger::Log(GetLastError(), "CreateWindowEx failed for window: " + window_title);
+        ErrorLogger::Log(GetLastError(), "CreateWindowEx failed for window: " + windowTitle);
         return false;
     }
 
@@ -51,7 +51,7 @@ bool RenderWindow::ProcessMessages()
             if (!IsWindow(handle))
             {
                 handle = NULL;
-                UnregisterClass(window_class_wide.c_str(), hInstance);
+                UnregisterClass(windowClassWide.c_str(), hInstance);
                 return false;
             }
         }
@@ -69,7 +69,7 @@ RenderWindow::~RenderWindow()
 {
     if (handle != NULL)
     {
-        UnregisterClass(window_class_wide.c_str(), hInstance);
+        UnregisterClass(windowClassWide.c_str(), hInstance);
         DestroyWindow(handle);
     }
 }
@@ -78,8 +78,8 @@ HWND RenderWindow::Create(WindowContainer* pWindowContainer)
 {
     return CreateWindowEx(
         0,                                        //Extended Windows style - we are using the default. For other options, see: https://msdn.microsoft.com/en-us/library/windows/desktop/ff700543(v=vs.85).aspx
-        this->window_class_wide.c_str(),          //Window class name
-        this->window_title_wide.c_str(),          //Window Title
+        this->windowClassWide.c_str(),            //Window class name
+        this->windowTitleWide.c_str(),            //Window Title
         WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, //Windows style - See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632600(v=vs.85).aspx
         0,                                        //Window X Position
         0,                                        //Window Y Position
@@ -147,7 +147,7 @@ void RenderWindow::RegisterWindowClass()
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);        //Default Cursor - If we leave this null, we have to explicitly set the cursor's shape each time it enters the window.
     wc.hbrBackground = NULL;                        //Handle to the class background brush for the window's background color - we will leave this blank for now and later set this to black. For stock brushes, see: https://msdn.microsoft.com/en-us/library/windows/desktop/dd144925(v=vs.85).aspx
     wc.lpszMenuName = NULL;                            //Pointer to a null terminated character string for the menu. We are not using a menu yet, so this will be NULL.
-    wc.lpszClassName = this->window_class_wide.c_str(); //Pointer to null terminated string of our class name for this window.
+    wc.lpszClassName = this->windowClassWide.c_str(); //Pointer to null terminated string of our class name for this window.
     wc.cbSize = sizeof(WNDCLASSEX);                    //Need to fill in the size of our struct for cbSize
     RegisterClassEx(&wc);                            // Register the class so that it is usable.
 }

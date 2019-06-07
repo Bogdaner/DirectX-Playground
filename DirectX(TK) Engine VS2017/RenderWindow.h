@@ -10,8 +10,8 @@ class RenderWindow
 {
 public:
     RenderWindow();
-    bool Initialize(WindowContainer* pWindowContainer, HINSTANCE hInstance, const std::string& window_title, 
-        const std::string& window_class, const unsigned int width, const unsigned int height);
+    bool Initialize(WindowContainer* pWindowContainer, HINSTANCE hInstance, const std::string& windowTitle, 
+        const std::string& windowClass, const unsigned int width, const unsigned int height);
 
     bool ProcessMessages();
     HWND GetHWND() const;
@@ -22,10 +22,10 @@ private:
     void RegisterWindowClass();
     HWND handle = NULL;
     HINSTANCE hInstance = NULL;
-    std::string window_title;
-    std::wstring window_title_wide;
-    std::string window_class;
-    std::wstring window_class_wide;
+    std::string windowTitle;
+    std::wstring windowTitleWide;
+    std::string windowClass;
+    std::wstring windowClassWide;
     unsigned int width;
     unsigned int height;
 };

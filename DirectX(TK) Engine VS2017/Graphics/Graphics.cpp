@@ -2,7 +2,7 @@
 
 bool Graphics::Initialize( HWND hwnd, const unsigned int width, const unsigned int height )
 {
-    if (!InitializeDirectX( hwnd, width, height ))
+    if ( !InitializeDirectX( hwnd, width, height ) )
     {
         return false;
     }
@@ -49,7 +49,7 @@ bool Graphics::InitializeDirectX( HWND hwnd, const unsigned int width, const uns
         return false;
     }
 
-    // Get graphic adapter with the most memory (stored in max_itr)
+    // Get graphic adapter with the most memory
     auto max_itr = std::max_element( adapters.begin(), adapters.end(), []( const AdapterData& a, const AdapterData& b ) -> bool
     {
         return a.description.DedicatedVideoMemory < b.description.DedicatedVideoMemory;
@@ -119,8 +119,8 @@ bool Graphics::InitializeDirectX( HWND hwnd, const unsigned int width, const uns
 
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
-    viewport.Width = static_cast<float>(width);
-    viewport.Height = static_cast<float>(height);
+    viewport.Width = static_cast<float>( width );
+    viewport.Height = static_cast<float>( height );
 
     // Set the viewport
     deviceContext->RSSetViewports( 1, &viewport );
@@ -132,7 +132,8 @@ bool Graphics::InitializeShaders()
 {
     D3D11_INPUT_ELEMENT_DESC layout[]
     {
-        {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 }
+        { "POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 1, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
     const UINT numElements = ARRAYSIZE( layout );
 
@@ -154,7 +155,7 @@ bool Graphics::InitializeScene()
     Vertex v[] =
     {
         { -0.1f, 0.0f },
-        { 0.0f, 0.9f },
+        { 0.0f, 0.1f },
         { 0.1f, 0.0f },
     };
 

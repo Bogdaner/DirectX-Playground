@@ -27,7 +27,7 @@ bool VertexShader::Initialize( Microsoft::WRL::ComPtr<ID3D11Device>& device, D3D
 
     if ( FAILED( hr ) )
     {
-        ErrorLogger::Log( hr, "Failed to create Input Layout" );
+        ErrorLogger::Log( hr, "Failed to create Input Layout." );
         return false;
     }
 
@@ -38,7 +38,6 @@ ID3D11VertexShader* VertexShader::GetShader() const
 {
     return shader.Get();
 }
-
 
 const BYTE* VertexShader::GetShaderBuffer() const
 {
@@ -54,10 +53,8 @@ ID3D11InputLayout * VertexShader::GetInputLayout() const
 {
     return inputLayout.Get();
 }
-// --------------------------------------------------------------------------------------------------------------------------------
 
 //PixelShader Setup
-
 bool PixelShader::Initialize( Microsoft::WRL::ComPtr<ID3D11Device>& device )
 {
     HRESULT hr = device->CreatePixelShader(

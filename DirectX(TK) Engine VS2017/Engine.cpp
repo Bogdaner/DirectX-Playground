@@ -1,12 +1,12 @@
 #include "Engine.h"
 
-bool Engine::Initialize(HINSTANCE hInstance, const std::string & window_title, const std::string & window_class, unsigned const int width, unsigned const int height)
+bool Engine::Initialize( HINSTANCE hInstance, const std::string& window_title, const std::string& window_class, unsigned const int width, unsigned const int height )
 {
     //keyboard.EnableAutoRepeatChars();
-    if (!render_window.Initialize( this, hInstance, window_title, window_class, width, height ))
+    if ( !renderWindow.Initialize( this, hInstance, window_title, window_class, width, height ) )
         return false;
 
-    if (!gfx.Initialize( render_window.GetHWND(), width, height ))
+    if ( !gfx.Initialize( renderWindow.GetHWND(), width, height ) )
         return false; 
 
     return true;
@@ -14,43 +14,47 @@ bool Engine::Initialize(HINSTANCE hInstance, const std::string & window_title, c
 
 bool Engine::ProcessMessages()
 {
-    return render_window.ProcessMessages();
+    return renderWindow.ProcessMessages();
 }
 
 void Engine::Update()
 {
-    while (!keyboard.CharBufferIsEmpty())
+    while ( !keyboard.CharBufferIsEmpty() )
     {
         const unsigned char ch = keyboard.ReadChar();
+#ifdef TEST
         // Testing Code:
         std::string s = "Char: ";
         s += ch;
         s += '\n';
-        OutputDebugStringA(s.c_str());
+        OutputDebugStringA( s.c_str() );
+#endif // TEST
     }
 
-    while (!keyboard.KeyBufferIsEmpty())
+    while ( !keyboard.KeyBufferIsEmpty() )
     {
         const unsigned char ch = keyboard.ReadKey().GetKeyCode();
-        // Testing Code:
+#ifdef TEST
         std::string s = "Keycode: ";
         s += ch;
         s += '\n';
-        OutputDebugStringA(s.c_str());
+        OutputDebugStringA( s.c_str() );
+#endif // TEST
     }
 
-    while (!mouse.EventBufferIsEmpty())
+    while ( !mouse.EventBufferIsEmpty() )
     {
         MouseEvent me = mouse.ReadEvent();
-        // Testing Code:
+#ifdef TEST
         if (me.GetType() == MouseEvent::EventType::RAW_MOVE)
         {
-            std::string s = "X: " + std::to_string(me.GetPosX());
+            std::string s = "X: " + std::to_string( me.GetPosX() );
             s += " ";
-            s += "Y: " + std::to_string(me.GetPosY());
+            s += "Y: " + std::to_string( me.GetPosY() );
             s += '\n';
-            OutputDebugStringA(s.c_str());
+            OutputDebugStringA( s.c_str() );
         }
+#endif // TEST
     }
 }
 
