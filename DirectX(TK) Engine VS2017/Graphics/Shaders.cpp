@@ -6,7 +6,7 @@
 bool VertexShader::Initialize( Microsoft::WRL::ComPtr<ID3D11Device>& device, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements )
 {
     HRESULT hr = device->CreateVertexShader( 
-        vertexshader_array, 
+        GetShaderBuffer(),
         sizeof( vertexshader_array ),
         nullptr, 
         shader.GetAddressOf() 
@@ -58,7 +58,7 @@ ID3D11InputLayout * VertexShader::GetInputLayout() const
 bool PixelShader::Initialize( Microsoft::WRL::ComPtr<ID3D11Device>& device )
 {
     HRESULT hr = device->CreatePixelShader(
-        pixelshader_array,
+        GetShaderBuffer(),
         sizeof( pixelshader_array ),
         nullptr,
         shader.GetAddressOf()

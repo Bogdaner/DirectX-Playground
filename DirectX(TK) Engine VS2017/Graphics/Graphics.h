@@ -22,7 +22,15 @@ private:
     Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain;
     Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
 
+    Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizer;
+
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
+    Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
+
+
     Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer2;
     
     VertexShader vertexShader;
     PixelShader pixelShader;
