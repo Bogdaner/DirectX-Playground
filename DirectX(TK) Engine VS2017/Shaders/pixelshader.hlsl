@@ -1,11 +1,15 @@
+Texture2D objTexture : TEXTURE : register(t0);
+SamplerState objSamplerState : SAMPLER: register(s0);
+
 struct PS_Input
 {
     float4 inPos : SV_POSITION;
-    float3 inColor : COLOR;
+    float2 inTexCoord : TEXCOORDS;
 };
 
 float4 main(PS_Input input) : SV_TARGET
 {
-    return float4(input.inColor, 1.0f);
+    float3 pixelColor = objTexture.Sample(objSamplerState, input.inTexCoord);
+    return float4(pixelColor, 1.0f);
     //return float4(1.0f, 0.0f, 0.0f, 1.0f);
 }
