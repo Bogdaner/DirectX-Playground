@@ -3,8 +3,7 @@
 
 # Data
 Data/
-Shaders/PixelShader_Header.h
-Shaders/VertexShader_Header.h
+Shaders/*
 
 # User-specific files
 *.suo
