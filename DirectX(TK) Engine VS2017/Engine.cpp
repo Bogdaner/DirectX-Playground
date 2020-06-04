@@ -1,4 +1,5 @@
 #include "Engine.h"
+#define TEST
 
 bool Engine::Initialize( HINSTANCE hInstance, const std::string& window_title, const std::string& window_class, unsigned const int width, unsigned const int height )
 {

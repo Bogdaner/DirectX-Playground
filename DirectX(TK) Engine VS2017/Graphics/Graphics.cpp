@@ -120,7 +120,7 @@ bool Graphics::InitializeScene()
 void Graphics::InitializeFonts()
 {
     spriteBatch = std::make_unique<DirectX::SpriteBatch>( deviceContext.Get() );
-    spriteFont = std::make_unique<DirectX::SpriteFont>( device.Get(), L"Data\\Fonts\\comic_sans_ms_16_spritefont" );
+    spriteFont = std::make_unique<DirectX::SpriteFont>( device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont" );
 }
 
 bool Graphics::SetupDeviceAndSwapchain( const HWND hwnd, const unsigned int width, const unsigned int height )
