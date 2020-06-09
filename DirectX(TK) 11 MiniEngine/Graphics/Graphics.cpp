@@ -71,6 +71,25 @@ bool Graphics::InitializeDirectX( HWND hwnd, const unsigned int width, const uns
 
 bool Graphics::InitializeShaders()
 {
+    std::wstring shaderfolder = L"";
+#pragma region DetermineShaderPath
+    if ( IsDebuggerPresent() == TRUE )
+    {
+#ifdef _DEBUG //Debug Mode
+#ifdef _WIN64 //x64
+        shaderfolder = L"..\\x64\\Debug\\";
+#else  //x86 (Win32)
+        shaderfolder = L"..\\Debug\\";
+#endif
+#else //Release Mode
+#ifdef _WIN64 //x64
+        shaderfolder = L"..\\x64\\Release\\";
+#else  //x86 (Win32)
+        shaderfolder = L"..\\Release\\";
+#endif
+#endif
+    }
+
     D3D11_INPUT_ELEMENT_DESC layout[]
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -78,10 +97,10 @@ bool Graphics::InitializeShaders()
     };
     const UINT numElements = ARRAYSIZE( layout );
 
-    if ( !vertexShader.Initialize( device, layout, numElements ) )
+    if ( !vertexShader.Initialize( device, shaderfolder + L"vertexshader.cso", layout, numElements ) )
         return false;
 
-    if ( !pixelShader.Initialize( device ) )
+    if ( !pixelShader.Initialize( device,  shaderfolder + L"pixelshader.cso") )
         return false;
 
     return true;
@@ -181,7 +200,7 @@ bool Graphics::SetupDeviceAndSwapchain( const HWND hwnd, const unsigned int widt
     }
 
     Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
-    hr = swapchain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast< void** >( backBuffer.GetAddressOf() ) );
+    hr = swapchain->GetBuffer( 0, __uuidof( ID3D11Texture2D ), reinterpret_cast<void**>( backBuffer.GetAddressOf() ) );
     if ( FAILED( hr ) )
     {
         ErrorLogger::Log( "GetBuffer failed" );

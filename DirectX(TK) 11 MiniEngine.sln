@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectX(TK) Engine VS2017", "DirectX(TK) Engine VS2017\DirectX(TK) Engine VS2017.vcxproj", "{9227CAA4-CC32-4E08-9EC8-97A42EA65D33}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectX(TK) 11 MiniEngine", "DirectX(TK) 11 MiniEngine\DirectX(TK) 11 MiniEngine.vcxproj", "{9227CAA4-CC32-4E08-9EC8-97A42EA65D33}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
