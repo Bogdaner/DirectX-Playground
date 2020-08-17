@@ -8,6 +8,13 @@ int APIENTRY wWinMain(
     _In_ int       nShowCmd
 )
 {
+    // Required for DirectXTK to work properly
+    HRESULT hr = CoInitialize( nullptr );
+    if ( FAILED( hr ) )
+    {
+        ErrorLogger::Log( "Failed to CoInitialize DirectXTK" );
+    }
+
     Engine engine;
     if ( engine.Initialize( hInstance, "Window", "Class", 800u, 600u ) )
     {

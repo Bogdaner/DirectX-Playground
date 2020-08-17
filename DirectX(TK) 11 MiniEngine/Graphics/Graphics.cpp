@@ -27,14 +27,19 @@ void Graphics::RenderFrame()
 
     deviceContext->PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
 
+    constantBuffer.data.xOffset = 0.0f;
+    constantBuffer.data.yOffset = -0.5f;
+    constantBuffer.ApplyChanges();
+    deviceContext->VSSetConstantBuffers( 0, 1, constantBuffer.GetAddressOf() );
+
     deviceContext->VSSetShader( vertexShader.GetShader(), NULL, 0 );
     deviceContext->PSSetShader( pixelShader.GetShader(), NULL, 0 );
 
-    UINT stride = sizeof( Vertex );
     UINT offset = 0;
-    // Red Triangle
-    deviceContext->IASetVertexBuffers( 0, 1, vertexBuffer.GetAddressOf(), &stride, &offset );
-    deviceContext->Draw( 3, 0 );
+    deviceContext->PSSetShaderResources( 0, 1, texture.GetAddressOf() );
+    deviceContext->IASetVertexBuffers( 0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.GetStridePtr(), &offset );
+    deviceContext->IASetIndexBuffer( indicesBuffer.Get(), DXGI_FORMAT_R32_UINT, 0 );
+    deviceContext->DrawIndexed( 6, 0, 0 );
 
     // Draw Text
     spriteBatch->Begin();
@@ -109,27 +114,43 @@ bool Graphics::InitializeShaders()
 bool Graphics::InitializeScene()
 {
     std::vector<Vertex> v;
-    // Red triangle
-    v.push_back( { -0.5f, -0.5f, 1.0f, 0.0f, 1.0f} );
-    v.push_back( { 0.0f, 0.5f, 1.0f, 0.5f, 0.0f } );
-    v.push_back( { 0.5f, -0.5f, 1.0f, 1.0f, 1.0f} );
+    // Geometry def
+    v.push_back( { -0.5f, -0.5f, 1.0f, 0.0f, 1.0f} ); // Bottom left
+    v.push_back( { -0.5f, 0.5f, 1.0f, 0.0f, 0.0f } ); // Top left
+    v.push_back( { 0.5f, -0.5f, 1.0f, 1.0f, 1.0f} ); // Bottom right
+    v.push_back( { 0.5f, 0.5f, 1.0f, 1.0f, 0.0f } ); // Top right
 
-    D3D11_BUFFER_DESC vertexBufferDesc;
-    ZeroMemory( &vertexBufferDesc, sizeof( D3D11_BUFFER_DESC ) );
-    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof( Vertex ) * static_cast<UINT>(v.size()); //ARRAYSIZE( v.data() );
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertexBufferDesc.CPUAccessFlags = 0;
-    vertexBufferDesc.MiscFlags = 0;
+    std::vector<DWORD> indices{ 0, 1, 2, 3, 2, 0 };
 
-    D3D11_SUBRESOURCE_DATA vertexBufferInitData;
-    ZeroMemory( &vertexBufferInitData, sizeof( D3D11_SUBRESOURCE_DATA ) );
-    vertexBufferInitData.pSysMem = v.data();
-
-    HRESULT hr = device->CreateBuffer( &vertexBufferDesc, &vertexBufferInitData, vertexBuffer.GetAddressOf() );
+    // Vertex Buffer Setup
+    HRESULT hr = vertexBuffer.Initialize( device.Get(), v.data(), static_cast<UINT>( v.size() ) );
     if ( FAILED( hr ) )
     {
         ErrorLogger::Log( hr, "Failed to create VertexBuffer." );
+        return false;
+    }
+
+    // Index Buffer Setup
+    hr = indicesBuffer.Initialize(device.Get(), indices.data(), static_cast<UINT>( indices.size() ) );
+    if ( FAILED( hr ) )
+    {
+        ErrorLogger::Log( hr, "Failed to create IndexBuffer." );
+        return false;
+    }
+
+    // Constant Buffer Setup
+    hr = constantBuffer.Initialize( device.Get(), deviceContext.Get() );
+    if ( FAILED( hr ) )
+    {
+        ErrorLogger::Log( hr, "Failed to initialize constant buffer." );
+        return false;
+    }
+    
+    // Texture loading
+    hr = DirectX::CreateWICTextureFromFile( device.Get(), L"Data\\Textures\\hello.png", nullptr, texture.GetAddressOf() );
+    if ( FAILED( hr ) )
+    {
+        ErrorLogger::Log( hr, "Failed to load a texture from file." );
         return false;
     }
 
@@ -138,6 +159,7 @@ bool Graphics::InitializeScene()
 
 void Graphics::InitializeFonts()
 {
+    // https://github.com/microsoft/DirectXTK/wiki/Drawing-text
     spriteBatch = std::make_unique<DirectX::SpriteBatch>( deviceContext.Get() );
     spriteFont = std::make_unique<DirectX::SpriteFont>( device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont" );
 }
