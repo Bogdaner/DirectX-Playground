@@ -6,9 +6,11 @@
 #include <WICTextureLoader.h>
 
 #include "AdapterReader.h"
+#include "Camera.h"
 #include "ConstantBuffer.hpp"
 #include "IndexBuffer.h"
 #include "Shaders.h"
+#include "..\\Timer.h"
 #include "Vertex.h"
 #include "VertexBuffer.hpp"
 
@@ -17,16 +19,18 @@ class Graphics
 public:
     bool Initialize( HWND hwnd, const unsigned int width, const unsigned int height );
     void RenderFrame();
+
+    Camera camera;
 protected:
 private:
-    bool InitializeDirectX( HWND hwnd, const unsigned int width, const unsigned int height );
+    bool InitializeDirectX( HWND hwnd );
     bool InitializeShaders();
     bool InitializeScene();
 
     void InitializeFonts();
-    bool SetupDeviceAndSwapchain( const HWND hwnd, const unsigned int width, const unsigned int height );
-    bool SetupZBuffer( const unsigned int width, const unsigned int height );
-    bool SetupRasterizer( const unsigned int width, const unsigned int height );
+    bool SetupDeviceAndSwapchain( const HWND hwnd );
+    bool SetupZBuffer();
+    bool SetupRasterizer();
     bool SetupSamplerState();
 
 
@@ -54,4 +58,9 @@ private:
 
     VertexShader vertexShader;
     PixelShader pixelShader;
+
+    Timer fpsTimer;
+
+    unsigned int windowHeight;
+    unsigned int windowWidth;
 };

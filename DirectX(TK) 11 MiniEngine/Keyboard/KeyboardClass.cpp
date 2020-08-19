@@ -8,7 +8,7 @@ KeyboardClass::KeyboardClass()
         s = false;
 }
 
-bool KeyboardClass::KeyIsPressed(const unsigned char keycode) const    
+bool KeyboardClass::KeyIsPressed(const unsigned char keycode) const
 {
     return keyStates[keycode];
 }

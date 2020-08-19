@@ -14,8 +14,6 @@ class ConstantBuffer
 public:
     T data;
 
-    ConstantBuffer() = default;
-
     ID3D11Buffer* Get() const
     {
         return constantBuffer.Get();

@@ -25,7 +25,7 @@ public:
         return bufferSize;
     }
 
-    HRESULT Initialize( ID3D11Device* device, DWORD* data, UINT numIndices )
+    HRESULT Initialize( ID3D11Device* device, const DWORD* data, UINT numIndices )
     {
         bufferSize = numIndices;
 

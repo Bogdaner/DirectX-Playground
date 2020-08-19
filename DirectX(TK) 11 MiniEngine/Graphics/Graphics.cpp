@@ -2,7 +2,11 @@
 
 bool Graphics::Initialize( HWND hwnd, const unsigned int width, const unsigned int height )
 {
-    if ( !InitializeDirectX( hwnd, width, height ) )
+    windowWidth = width;
+    windowHeight = height;
+    fpsTimer.Start();
+
+    if ( !InitializeDirectX( hwnd ) )
         return false;
 
     if ( !InitializeShaders() )
@@ -27,13 +31,21 @@ void Graphics::RenderFrame()
 
     deviceContext->PSSetSamplers( 0, 1, samplerState.GetAddressOf() );
 
-    constantBuffer.data.xOffset = 0.0f;
-    constantBuffer.data.yOffset = -0.5f;
-    constantBuffer.ApplyChanges();
-    deviceContext->VSSetConstantBuffers( 0, 1, constantBuffer.GetAddressOf() );
-
     deviceContext->VSSetShader( vertexShader.GetShader(), NULL, 0 );
     deviceContext->PSSetShader( pixelShader.GetShader(), NULL, 0 );
+
+    const XMMATRIX world = DirectX::XMMatrixIdentity();
+    //camera.AdjustPosition( 0.0f, 0.01f, 0.0f );
+    //camera.SetLookAtPos( XMFLOAT3{ 0.0f, 0.0f, 0.0f } );
+    //camera.AdjustRotation( 0.0f, 0.0f, 0.0f );
+
+    constantBuffer.data.mat = world * camera.GetViewMatrix() * camera.GetProjectionMatrix();
+
+    // DirectX Math library stores matrices in row major format when HLSL uses column major for faster computations
+    constantBuffer.data.mat = XMMatrixTranspose( constantBuffer.data.mat );
+    constantBuffer.ApplyChanges();
+
+    deviceContext->VSSetConstantBuffers( 0, 1, constantBuffer.GetAddressOf() );
 
     UINT offset = 0;
     deviceContext->PSSetShaderResources( 0, 1, texture.GetAddressOf() );
@@ -42,9 +54,19 @@ void Graphics::RenderFrame()
     deviceContext->DrawIndexed( 6, 0, 0 );
 
     // Draw Text
+    static unsigned int fpsCounter;
+    static std::string fpsStr{"FPS: 0"};
+    fpsCounter += 1;
+    if ( fpsTimer.GetMilisecondsElapsed() >= 1000.0f)
+    {
+        fpsTimer.Restart();
+        fpsStr = "FPS: " + std::to_string( fpsCounter );
+        fpsCounter = 0;
+    }
+
     spriteBatch->Begin();
     spriteFont->DrawString( spriteBatch.get(), 
-                            "Hello World", 
+                            fpsStr.c_str(), 
                             DirectX::XMFLOAT2( 0.0f, 0.0f ), 
                             DirectX::Colors::White, 0.0f, 
                             DirectX::XMFLOAT2( 0.0f, 0.0f ), 
@@ -53,18 +75,18 @@ void Graphics::RenderFrame()
 
     spriteBatch->End();
 
-    swapchain->Present( 1, NULL ); // first argument vsync on/off
+    swapchain->Present( 0, NULL ); // first argument vsync on/off
 }
 
-bool Graphics::InitializeDirectX( HWND hwnd, const unsigned int width, const unsigned int height )
+bool Graphics::InitializeDirectX( HWND hwnd )
 {
-    if ( !SetupDeviceAndSwapchain( hwnd, width, height ) )
+    if ( !SetupDeviceAndSwapchain( hwnd ) )
         return false;
 
-    if ( !SetupZBuffer( width, height ) )
+    if ( !SetupZBuffer() )
         return false;
 
-    if ( !SetupRasterizer( width, height ) )
+    if ( !SetupRasterizer() )
         return false;
 
     if ( !SetupSamplerState() )
@@ -115,12 +137,12 @@ bool Graphics::InitializeScene()
 {
     std::vector<Vertex> v;
     // Geometry def
-    v.push_back( { -0.5f, -0.5f, 1.0f, 0.0f, 1.0f} ); // Bottom left
-    v.push_back( { -0.5f, 0.5f, 1.0f, 0.0f, 0.0f } ); // Top left
-    v.push_back( { 0.5f, -0.5f, 1.0f, 1.0f, 1.0f} ); // Bottom right
-    v.push_back( { 0.5f, 0.5f, 1.0f, 1.0f, 0.0f } ); // Top right
+    v.push_back( { -1.0f, -1.0f, 0.0f, 0.0f, 1.0f} ); // Bottom left
+    v.push_back( { -1.0f, 1.0f, 0.0f, 0.0f, 0.0f } ); // Top left
+    v.push_back( { 1.0f, -1.0f, 0.0f, 1.0f, 1.0f} ); // Bottom right
+    v.push_back( { 1.0f, 1.0f, 0.0f, 1.0f, 0.0f } ); // Top right
 
-    std::vector<DWORD> indices{ 0, 1, 2, 3, 2, 0 };
+    std::vector<DWORD> indices{ 0, 1, 2, 1, 3, 2 };
 
     // Vertex Buffer Setup
     HRESULT hr = vertexBuffer.Initialize( device.Get(), v.data(), static_cast<UINT>( v.size() ) );
@@ -154,6 +176,14 @@ bool Graphics::InitializeScene()
         return false;
     }
 
+    // Camera Init
+    camera.SetPosition( 0.0f, 0.0f, -2.0f );
+    camera.SetProjectionValues(
+        90.0f,
+        static_cast<float>( windowWidth ) / static_cast<float>( windowHeight ),
+        0.1f,
+        1000.0f );
+
     return true;
 }
 
@@ -164,7 +194,7 @@ void Graphics::InitializeFonts()
     spriteFont = std::make_unique<DirectX::SpriteFont>( device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont" );
 }
 
-bool Graphics::SetupDeviceAndSwapchain( const HWND hwnd, const unsigned int width, const unsigned int height )
+bool Graphics::SetupDeviceAndSwapchain( const HWND hwnd )
 {
     std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
 
@@ -183,8 +213,8 @@ bool Graphics::SetupDeviceAndSwapchain( const HWND hwnd, const unsigned int widt
     DXGI_SWAP_CHAIN_DESC scd;
     ZeroMemory( &scd, sizeof( DXGI_SWAP_CHAIN_DESC ) );
 
-    scd.BufferDesc.Width = width;
-    scd.BufferDesc.Height = height;
+    scd.BufferDesc.Width = windowWidth;
+    scd.BufferDesc.Height = windowHeight;
     scd.BufferDesc.RefreshRate.Numerator = 60;
     scd.BufferDesc.RefreshRate.Denominator = 1;
     scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -239,12 +269,12 @@ bool Graphics::SetupDeviceAndSwapchain( const HWND hwnd, const unsigned int widt
     return true;
 }
 
-bool Graphics::SetupZBuffer( const unsigned int width, const unsigned int height )
+bool Graphics::SetupZBuffer()
 {
     //Describe our Depth/Stencil Buffer
     D3D11_TEXTURE2D_DESC depthStencilDescTex;
-    depthStencilDescTex.Width = width;
-    depthStencilDescTex.Height = height;
+    depthStencilDescTex.Width = windowWidth;
+    depthStencilDescTex.Height = windowHeight;
     depthStencilDescTex.MipLevels = 1;
     depthStencilDescTex.ArraySize = 1;
     depthStencilDescTex.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -289,7 +319,7 @@ bool Graphics::SetupZBuffer( const unsigned int width, const unsigned int height
     return true;
 }
 
-bool Graphics::SetupRasterizer( const unsigned int width, const unsigned int height )
+bool Graphics::SetupRasterizer()
 {
     // RASTERIZER SETUP
     D3D11_VIEWPORT viewport;
@@ -297,8 +327,8 @@ bool Graphics::SetupRasterizer( const unsigned int width, const unsigned int hei
 
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
-    viewport.Width = static_cast< float >( width );
-    viewport.Height = static_cast< float >( height );
+    viewport.Width = static_cast< float >( windowWidth );
+    viewport.Height = static_cast< float >( windowHeight );
     viewport.MinDepth = 0.0f;
     viewport.MaxDepth = 1.0f;
 
