@@ -1,5 +1,12 @@
 #include "Graphics.h"
 
+Graphics::~Graphics()
+{
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
+}
+
 bool Graphics::Initialize( HWND hwnd, const unsigned int width, const unsigned int height )
 {
     windowWidth = width;
@@ -13,6 +20,9 @@ bool Graphics::Initialize( HWND hwnd, const unsigned int width, const unsigned i
         return false;
 
     if ( !InitializeScene() )
+        return false;
+
+    if ( !InitializeImGui( hwnd ) )
         return false;
 
     return true;
@@ -75,7 +85,24 @@ void Graphics::RenderFrame()
 
     spriteBatch->End();
 
+    RenderImGuiFrame();
+
     swapchain->Present( 0, NULL ); // first argument vsync on/off
+}
+
+void Graphics::RenderImGuiFrame() const
+{
+    // Start the Dear ImGui frame
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    bool show_demo_window = true;
+    ImGui::ShowDemoWindow( &show_demo_window );
+
+    // ImGui Rendering
+    ImGui::Render();
+    ImGui_ImplDX11_RenderDrawData( ImGui::GetDrawData() );
 }
 
 bool Graphics::InitializeDirectX( HWND hwnd )
@@ -187,6 +214,26 @@ bool Graphics::InitializeScene()
     return true;
 }
 
+bool Graphics::InitializeImGui( HWND hwnd )
+{
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void) io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    //ImGui::StyleColorsClassic();
+
+    // Setup Platform/Renderer bindings
+    const bool imGuiWin32Init = ImGui_ImplWin32_Init( hwnd );
+    const bool imGuiDX11Init = ImGui_ImplDX11_Init( device.Get(), deviceContext.Get() );
+
+    return imGuiWin32Init && imGuiDX11Init;
+}
+
 void Graphics::InitializeFonts()
 {
     // https://github.com/microsoft/DirectXTK/wiki/Drawing-text
@@ -285,14 +332,14 @@ bool Graphics::SetupZBuffer()
     depthStencilDescTex.CPUAccessFlags = 0;
     depthStencilDescTex.MiscFlags = 0;
 
-    HRESULT hr = this->device->CreateTexture2D( &depthStencilDescTex, NULL, this->depthStencilBuffer.GetAddressOf() );
+    HRESULT hr = device->CreateTexture2D( &depthStencilDescTex, NULL, depthStencilBuffer.GetAddressOf() );
     if ( FAILED( hr ) )
     {
         ErrorLogger::Log( hr, "Failed to create depth stencil buffer." );
         return false;
     }
 
-    hr = this->device->CreateDepthStencilView( this->depthStencilBuffer.Get(), NULL, this->depthStencilView.GetAddressOf() );
+    hr = device->CreateDepthStencilView( depthStencilBuffer.Get(), NULL, depthStencilView.GetAddressOf() );
     if ( FAILED( hr ) )
     {
         ErrorLogger::Log( hr, "Failed to create depth stencil view." );
@@ -309,7 +356,7 @@ bool Graphics::SetupZBuffer()
     depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
     depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 
-    hr = this->device->CreateDepthStencilState( &depthStencilDesc, this->depthStencilState.GetAddressOf() );
+    hr = device->CreateDepthStencilState( &depthStencilDesc, depthStencilState.GetAddressOf() );
     if ( FAILED( hr ) )
     {
         ErrorLogger::Log( hr, "Failed to create depth stencil state." );

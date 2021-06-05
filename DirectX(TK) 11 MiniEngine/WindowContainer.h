@@ -3,9 +3,9 @@
 #include <memory>
 
 #include "RenderWindow.h"
-#include "Keyboard/KeyboardClass.h"
-#include "Mouse/MouseClass.h"
-#include "Graphics\Graphics.h"
+#include "Keyboard\\KeyboardClass.h"
+#include "Mouse\\MouseClass.h"
+#include "Graphics\\Graphics.h"
 
 class WindowContainer
 {

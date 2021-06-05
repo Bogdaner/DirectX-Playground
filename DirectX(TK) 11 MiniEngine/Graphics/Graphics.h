@@ -14,9 +14,15 @@
 #include "Vertex.h"
 #include "VertexBuffer.hpp"
 
+#include "ImGui\\imgui.h"
+#include "ImGui\\imgui_impl_win32.h"
+#include "ImGui\\imgui_impl_dx11.h"
+
+
 class Graphics
 {
 public:
+    ~Graphics();
     bool Initialize( HWND hwnd, const unsigned int width, const unsigned int height );
     void RenderFrame();
 
@@ -26,6 +32,9 @@ private:
     bool InitializeDirectX( HWND hwnd );
     bool InitializeShaders();
     bool InitializeScene();
+    bool InitializeImGui( HWND hwnd );
+
+    void RenderImGuiFrame() const;
 
     void InitializeFonts();
     bool SetupDeviceAndSwapchain( const HWND hwnd );
